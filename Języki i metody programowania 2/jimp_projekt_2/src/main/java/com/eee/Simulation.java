@@ -29,11 +29,11 @@ public class Simulation {
     }
 
     public void setAlive (int x, int y) {
-        this.board[x][y] = 1;
+        this.setState(x, y, 1);
     }
 
     public void setDead (int x, int y) {
-        this.board[x][y] = 0;
+        this.setState(x, y, 0);
     }
 
     public void setWall (int x, int y) {
@@ -48,6 +48,16 @@ public class Simulation {
             return 0;
         }
         return this.board[x][y];
+    }
+
+    public void setState(int x, int y, int state){
+        if ( x < 0 || x >= width) {
+            return;
+        }
+        if ( y < 0 || y >= height) {
+            return;
+        }
+        this.board[x][y] = state;
     }
 
     public int countAliveNeighbours(int x, int y) {
@@ -88,23 +98,4 @@ public class Simulation {
         }
         this.board = newBoard;
     }
-
-    public static void main(String[] args) {
-        Simulation simulation = new Simulation(8,5);
-        simulation.setAlive(2,2);
-        simulation.setAlive(3,2);
-        simulation.setAlive(4,2);
-
-        simulation.printBoard();
-        simulation.step();
-        simulation.printBoard();
-        simulation.step();
-        simulation.printBoard();
-        simulation.step();
-        simulation.printBoard();
-
-    }
-
-
-
 }
