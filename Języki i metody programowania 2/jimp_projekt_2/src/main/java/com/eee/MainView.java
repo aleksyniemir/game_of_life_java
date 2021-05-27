@@ -27,20 +27,22 @@ public class MainView extends VBox {
             draw();
         });
 
-        this.canvas = new Canvas(400, 400);
+        this.canvas = new Canvas(450, 450);
         this.canvas.setOnMousePressed(this::handleDraw);
         this.canvas.setOnMouseDragged(this::handleDraw);
         this.setOnKeyPressed(this::onKeyPressed);
         this.affine = new Affine();
-        this.affine.appendScale(400 / 10f, 400 / 10f);
+        this.affine.appendScale(450 / 15f, 450 / 15f);
         this.getChildren().addAll(this.stepButton, this.canvas);
-        this.simulation = new Simulation(10,10);
+        this.simulation = new Simulation(15,15);
     }
 
     private void onKeyPressed(KeyEvent keyEvent) {
         if (keyEvent.getCode() == KeyCode.D){
             drawMode = 1;
         } else if (keyEvent.getCode() == KeyCode.E){
+            drawMode = 0;
+        } else if (keyEvent.getCode() == KeyCode.W){
             drawMode = 0;
         }
     }
@@ -79,10 +81,10 @@ public class MainView extends VBox {
         g.setStroke(Color.GREY);
         g.setLineWidth(0.05);
         for (int x = 0; x <= this.simulation.width; x++) {
-            g.strokeLine(x, 0, x, 10);
+            g.strokeLine(x, 0, x, 15);
         }
         for (int y = 0; y <= this.simulation.height; y++) {
-            g.strokeLine(0, y, 10, y);
+            g.strokeLine(0, y, 15, y);
         }
     }
 }
