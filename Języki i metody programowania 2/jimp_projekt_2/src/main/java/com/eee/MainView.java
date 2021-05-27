@@ -32,9 +32,9 @@ public class MainView extends VBox {
         this.canvas.setOnMouseDragged(this::handleDraw);
         this.setOnKeyPressed(this::onKeyPressed);
         this.affine = new Affine();
-        this.affine.appendScale(450 / 15f, 450 / 15f);
+        this.affine.appendScale(450 / 15f, 450 / 15f); // jebnac zmienne do wymiarow planszy
         this.getChildren().addAll(this.stepButton, this.canvas);
-        this.simulation = new Simulation(15,15);
+        this.simulation = new Simulation(15,15); // jebnac zmienne do wymiarow planszy
     }
 
     private void onKeyPressed(KeyEvent keyEvent) {
@@ -42,9 +42,7 @@ public class MainView extends VBox {
             drawMode = 1;
         } else if (keyEvent.getCode() == KeyCode.E){
             drawMode = 0;
-        } else if (keyEvent.getCode() == KeyCode.W){
-            drawMode = 0;
-        }
+        } // draw mody - dodac 2 dla sciany
     }
 
     private void handleDraw(MouseEvent event) {
@@ -68,6 +66,7 @@ public class MainView extends VBox {
 
         g.setFill(Color.LIGHTGRAY);
         g.fillRect(0,0,400, 400);
+
 
         g.setFill(Color.BLACK);
         for (int x = 0; x < this.simulation.width; x++) {
