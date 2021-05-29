@@ -1,9 +1,5 @@
 package com.eee;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
@@ -17,54 +13,54 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.NonInvertibleTransformException;
-import javafx.util.Duration;
-
-import java.util.concurrent.TimeUnit;
 
 
 public class MainView extends Pane {
     private Simulation simulation;
-    private Canvas canvas;
-    private Affine affine;
-    private Label incorrectInputsLabel;
+    private final Canvas canvas;
+    private final Affine affine;
+    private final Label incorrectInputsLabel;
 
-    private int drawMode = 1;
-    private double squareSize = 35;
+    private int drawMode = 1; //0 - adding | 1 - erasing | 2 - wall adding
+    private double squareSize = 35; // wielkosc kwadratow na planszy
 
     //zmienne do zmiany rozmiaru
-    private Button setTableSizeButton;
-    private TextField userWidthSize;
-    private TextField userHeightSize;
-    private Label textFieldSeparatorLabel;
+    private final Button setTableSizeButton;
+    private final TextField userWidthSize;
+    private final TextField userHeightSize;
+    private final Label textFieldSeparatorLabel;
 
     //zmienne do zmiany kolorow
-    private Label rLabel;
-    private Label gLabel;
-    private Label bLabel;
-    private Button setColorButton;
-    private Slider rSlider;
-    private Slider gSlider;
-    private Slider bSlider;
+    private final Label rLabel;
+    private final Label gLabel;
+    private final Label bLabel;
+    private final Button setColorButton;
+    private final Slider rSlider;
+    private final Slider gSlider;
+    private final  Slider bSlider;
 
     //zmienne do gornego rzedu napisow
-    private Button stepButton;
-    private Button restartButton;
-    private Button startButton;
-    private Button stopButton;
-    private Label speedLabel;
-    private TextField userAnimationSpeed;
+    private final Button stepButton;
+    private final Button restartButton;
+    private final Button startButton;
+    private final Button stopButton;
+    private final Label speedLabel;
+    private final Label instructionLabel;
+    private final TextField userAnimationSpeed;
     private boolean stopAnimation = false;
 
-
+    //napis z aktualnym trybem
+    private Label promptModeLabel;
+    private Label modeLabel;
 
     //dostep pakietowy po to by w klasie App.java mozna bylo korzystac z tych zmiennych
-    int tableWidth = 10;
-    int tableHeight = 10;
-    int rUntil;
-    int gUntil;
-    int bUntil;
-    double speedAnimation;
-
+    int tableWidth = 10;        //ilosc kwadratow w rzedzie
+    int tableHeight = 10;       //ilosc kwadratow w kolumnie
+    int rUntil = 255;           //czastka koloru RGB
+    int gUntil = 255;           //czastka koloru RGB
+    int bUntil = 255;           //czastka koloru RGB
+    double speedAnimation = 1;  //szybkosc animacji
+    String mode = "ADDING";     //tekst z aktualnym trybem wprowadzania
 
 
     public MainView() {
@@ -72,7 +68,7 @@ public class MainView extends Pane {
         stepButton.setLayoutX(2);
         stepButton.setLayoutY(2);
         this.stepButton.setOnAction(actionEvent -> {
-            if(!stopAnimation)
+            if(!stopAnimation)  //jezeli odbywa sie animacja to ją przerwij
                 stopAnimation = true;
             else
             {
@@ -81,6 +77,17 @@ public class MainView extends Pane {
             }
         });
 
+        //Sekcja napisów wyświetlających aktualny tyrb
+        {
+            promptModeLabel = new Label("Mode: ");
+            modeLabel = new Label(mode);
+
+            promptModeLabel.setLayoutX(10);
+            promptModeLabel.setLayoutY(325);
+
+            modeLabel.setLayoutX(50);
+            modeLabel.setLayoutY(325);
+        }
 
         //Sekcja odpowiedzialna za zmiane rozmiaru planszy
         {
@@ -121,7 +128,6 @@ public class MainView extends Pane {
             setTableSizeButton.setLayoutY(75);
         }
 
-
         //Sekcja odpowidzialana za zmiane koloru
         {
             rLabel = new Label("R:");
@@ -154,6 +160,8 @@ public class MainView extends Pane {
             setColorButton.setLayoutY(270);
             setColorButton.setPrefWidth(120);
             setColorButton.setOnAction(actionEvent -> {
+                stopAnimation = true;
+                incorrectInputsLabel.setVisible(false);
                 rUntil = (int)rSlider.getValue();
                 gUntil = (int)gSlider.getValue();
                 bUntil = (int)bSlider.getValue();
@@ -167,6 +175,7 @@ public class MainView extends Pane {
             startButton = new Button("Start");
             stopButton = new Button("Stop");
             speedLabel = new Label("Speed Animation:");
+            instructionLabel = new Label("Ex.  '2' do twice as fast | '0.5' do twice as slow");
             userAnimationSpeed = new TextField();
 
             restartButton.setLayoutX(50);
@@ -179,36 +188,49 @@ public class MainView extends Pane {
             stopButton.setLayoutY(2);
 
             speedLabel.setLayoutX(217);
-            speedLabel.setLayoutY(6);
+            speedLabel.setLayoutY(7);
+
+            instructionLabel.setLayoutX(440);
+            instructionLabel.setLayoutY(7);
 
             userAnimationSpeed.setLayoutX(325);
             userAnimationSpeed.setLayoutY(4);
+            userAnimationSpeed.setPrefWidth(100);
+            userAnimationSpeed.setPromptText("default: 1");
 
             stopButton.setOnAction(actionEvent -> {
                 stopAnimation = true;
             });
 
             restartButton.setOnAction(actionEvent -> {
+                incorrectInputsLabel.setVisible(false);
                 stopAnimation = true;
                 this.simulation.board = new int[tableWidth][tableHeight];
                 draw(tableWidth, tableHeight);
             });
 
             startButton.setOnAction(actionEvent -> {
+                incorrectInputsLabel.setVisible(false);
                 stopAnimation = false;
+                if(!userAnimationSpeed.getText().isEmpty())
+                    speedAnimation = Double.parseDouble(userAnimationSpeed.getText());
 
-                //TODO: ZROBIC ODDZIELNY WANTEK I TYLKO JEGO ZATRZYMYWAC SLEEPEM
+                Thread animation = new Thread(() -> {
+                    incorrectInputsLabel.setVisible(false);
 
-                while(!stopAnimation)   //dopoki nie zostanie wcisniety przysik step, restart, stop
-                {
+                    while (!stopAnimation) {
+                        simulation.step();
+                        draw(tableWidth, tableHeight);
+                        try {
+                            Thread.sleep((long)(1000 / speedAnimation));
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                animation.start();
 
-                }
             });
-
-            //TODO: SPRAWDZIC DLACZEGO NIE DZIALA ZMIANA ROZMIARU JAK ZMIENIAMY PLANSZE NA NIE KWADRAT
-
-
-
         }
 
 
@@ -222,12 +244,15 @@ public class MainView extends Pane {
         this.affine.appendScale(squareSize, squareSize);
         this.simulation = new Simulation(tableWidth,tableHeight);
         this.getChildren().addAll(this.stepButton, this.userHeightSize, this.userWidthSize,this.textFieldSeparatorLabel, this.setTableSizeButton, this.incorrectInputsLabel,
-                rLabel, gLabel, bLabel, setColorButton, rSlider, bSlider, gSlider,
+                rLabel, gLabel, bLabel, setColorButton, rSlider, bSlider, gSlider, instructionLabel,
                 restartButton, startButton, stopButton, speedLabel, userAnimationSpeed,
+                promptModeLabel, modeLabel,
                 this.canvas);
 
 
         setTableSizeButton.setOnAction(actionEvent -> {
+            stopAnimation = true;
+
             if(!userWidthSize.getText().isEmpty() && !userWidthSize.getText().isEmpty())
             {
                 //odczytanie nowych wartosci okna
@@ -238,7 +263,8 @@ public class MainView extends Pane {
             else
                 incorrectInputsLabel.setVisible(true);  //przy zlych danych pojawi  sie napis: "zle dane"
 
-            //zmiana rozmiaru okna
+
+            //zmiana rozmiaru planszy do gry
             this.canvas.setWidth(tableWidth * squareSize);
             this.canvas.setHeight(tableHeight * squareSize);
             this.simulation.width = tableWidth;
@@ -250,11 +276,19 @@ public class MainView extends Pane {
     }
 
     private void onKeyPressed(KeyEvent keyEvent) {
-        if (keyEvent.getCode() == KeyCode.D){
+        if (keyEvent.getCode() == KeyCode.A){
             drawMode = 1;
+            mode = "ADDING";
+            modeLabel.setText(mode);
         } else if (keyEvent.getCode() == KeyCode.E){
             drawMode = 0;
-        } // draw mody - dodac 2 dla sciany
+            mode = "ERASING";
+            modeLabel.setText(mode);
+        }else if (keyEvent.getCode() == KeyCode.W){
+            drawMode = 2;
+            mode = "WALL ADDING";
+            modeLabel.setText(mode);
+        }
     }
 
     private void handleDraw(MouseEvent event) {
@@ -292,10 +326,10 @@ public class MainView extends Pane {
         g.setStroke(Color.GREY);
         g.setLineWidth(0.05);
         for (int x = 0; x <= this.simulation.width; x++) {
-            g.strokeLine(x, 0, x, tableWidth); // jebnac zmienne do wymiarow planszy
+            g.strokeLine(x, 0, x, tableWidth);
         }
         for (int y = 0; y <= this.simulation.height; y++) {
-            g.strokeLine(0, y, tableHeight, y);  // jebnac zmienne do wymiarow planszy
+            g.strokeLine(0, y, tableHeight, y);
         }
     }
 }

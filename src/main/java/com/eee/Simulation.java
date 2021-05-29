@@ -11,7 +11,7 @@ public class Simulation {
         this.board = new int[width][height];
     }
 
-    public void printBoard() {
+    /*public void printBoard() {
         System.out.println("---");
         for (int y = 0; y < height ; y++) {
             String line = "|";
@@ -38,7 +38,7 @@ public class Simulation {
 
     public void setWall (int x, int y) {
         this.board[x][y] = 2;
-    }
+    }*/
 
     public int getState(int x, int y) {
         if ( x < 0 || x >= width) {
