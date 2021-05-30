@@ -217,7 +217,12 @@ public class MainView extends Pane {
             restartButton.setOnAction(actionEvent -> {
                 incorrectInputsLabel.setVisible(false);
                 stopAnimation = true;
-                this.simulation.board = new int[tableWidth][tableHeight];
+                this.simulation.board = new Cell[tableHeight][tableWidth];
+                for(int i = 0; i < tableHeight; i++)
+                {
+                    for(int j = 0; j < tableWidth; j++)
+                        this.simulation.board[i][j] = new Cell(0,204,204,204);
+                }
                 draw(tableWidth, tableHeight);
             });
 
@@ -281,7 +286,12 @@ public class MainView extends Pane {
             this.canvas.setHeight(tableHeight * squareSize);
             this.simulation.width = tableWidth;
             this.simulation.height = tableHeight;
-            this.simulation.board = new int[tableWidth][tableHeight];
+            this.simulation.board = new Cell[tableHeight][tableWidth];
+            for(int i = 0; i < tableHeight; i++)
+            {
+                for(int j = 0; j < tableWidth; j++)
+                    this.simulation.board[i][j] = new Cell(0,204,204,204);
+            }
             draw(tableWidth, tableHeight);
         });
 
@@ -311,7 +321,7 @@ public class MainView extends Pane {
             int simX = (int) simCoord.getX();
             int simY = (int) simCoord.getY();
 
-            this.simulation.setState(simX, simY, drawMode);
+            this.simulation.setState(simX, simY, drawMode, rUntil, gUntil, bUntil);
             draw(tableWidth, tableHeight);
         } catch (NonInvertibleTransformException e) {
             System.out.println("affine inverseTransform fail");
@@ -326,31 +336,22 @@ public class MainView extends Pane {
         g.fillRect(0,0,400, 400);
 
 
-        g.setFill(Color.BLACK);
-        for (int x = 0; x < this.simulation.width; x++) {
-            for (int y = 0; y < this.simulation.height; y++) {
-                if(this.simulation.getState(x,y) == 1) {
-                    g.fillRect(x,y,1,1);
-                }
-            }
-        }
-
-        g.setFill(Color.AQUAMARINE);
-        for (int x = 0; x < this.simulation.width; x++) {
-            for (int y = 0; y < this.simulation.height; y++) {
-                if(this.simulation.getState(x,y) == 2) {
-                    g.fillRect(x,y,1,1);
-                }
+        Color  c;
+        for (int x = 0; x < this.simulation.height; x++) {
+            for (int y = 0; y < this.simulation.width; y++) {
+                c = Color.rgb(this.simulation.board[x][y].r, this.simulation.board[x][y].g, this.simulation.board[x][y].b);
+                g.setFill(c);
+                g.fillRect(x,y,1,1);
             }
         }
 
         g.setStroke(Color.GREY);
         g.setLineWidth(0.05);
         for (int x = 0; x <= this.simulation.width; x++) {
-            g.strokeLine(x, 0, x, tableWidth);
+            g.strokeLine(x, 0, x, tableHeight);
         }
         for (int y = 0; y <= this.simulation.height; y++) {
-            g.strokeLine(0, y, tableHeight, y);
+            g.strokeLine(0, y, tableWidth, y);
         }
     }
 }
