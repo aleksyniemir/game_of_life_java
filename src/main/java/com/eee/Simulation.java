@@ -13,7 +13,7 @@ public class Simulation {
     public Simulation(int width, int height) {
         this.width = width;
         this.height = height;
-        this.board = new Cell[height][width];
+        this.board = new Cell[width][height];
         for(int i = 0; i < height; i++)
         {
             for(int j = 0; j < width; j++)
@@ -48,20 +48,20 @@ public class Simulation {
     }*/
 
     public int getState(int x, int y) {
-        if ( x < 0 || x >= height) {
+        if ( x < 0 || x >= width) {
             return 0;
         }
-        if ( y < 0 || y >= width) {
+        if ( y < 0 || y >= height) {
             return 0;
         }
         return this.board[x][y].state;
     }
 
     public void setState(int x, int y, int state, int r, int g, int b){
-        if ( x < 0 || x >= height) {
+        if ( x < 0 || x >= width) {
             return;
         }
-        if ( y < 0 || y >= width) {
+        if ( y < 0 || y >= height) {
             return;
         }
         this.board[x][y].state = state;
@@ -214,14 +214,11 @@ public class Simulation {
 
         char [] parent1 = rgbToBin(parents[chooseParents[0]].r, parents[chooseParents[0]].g, parents[chooseParents[0]].b).toCharArray();
         char [] parent2 = rgbToBin(parents[chooseParents[1]].r, parents[chooseParents[1]].g, parents[chooseParents[1]].b).toCharArray();
-        System.out.println(Arrays.toString(bitsToSwap));
-        System.out.println(parent1);
-        System.out.println(parent2);
+
         int n = ThreadLocalRandom.current().nextInt(0, 24);
         for(int i = 0; i < n; i++)
 		    parent1[bitsToSwap[i]] = parent2[bitsToSwap[i]];
         
-        System.out.println(parent1);
         rgb[0] = binToDec(parent1, 0);
         rgb[1] = binToDec(parent1, 8);
         rgb[2] = binToDec(parent1, 16);
@@ -229,14 +226,14 @@ public class Simulation {
     }
 
     public void step ()  {
-        Cell[][] newBoard = new Cell[height][width];
+        Cell[][] newBoard = new Cell[width][height];
         for(int i = 0; i < height; i++)
         {
             for(int j = 0; j < width; j++)
-                newBoard[i][j] = new Cell(0,204,204,204);
+                newBoard[j][i] = new Cell(0,204,204,204);
         }
-        for (int x = 0; x < height ; x++) {
-            for (int y = 0; y < width; y++) {
+        for (int y = 0; y < height ; y++) {
+            for (int x = 0; x < width; x++) {
                 int aliveNeighbours = countAliveNeighbours(x,y);
                 int[] rgb = new int[3]; 
                 if(getState(x, y) == 1){

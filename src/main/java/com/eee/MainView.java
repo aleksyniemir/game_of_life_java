@@ -217,11 +217,11 @@ public class MainView extends Pane {
             restartButton.setOnAction(actionEvent -> {
                 incorrectInputsLabel.setVisible(false);
                 stopAnimation = true;
-                this.simulation.board = new Cell[tableHeight][tableWidth];
+                this.simulation.board = new Cell[tableWidth][tableHeight];
                 for(int i = 0; i < tableHeight; i++)
                     {
                         for(int j = 0; j < tableWidth; j++)
-                        this.simulation.board[i][j] = new Cell(0,204,204,204);
+                        this.simulation.board[j][i] = new Cell(0,204,204,204);
                     }
                 draw(tableWidth, tableHeight);
             });
@@ -286,11 +286,11 @@ public class MainView extends Pane {
             this.canvas.setHeight(tableHeight * squareSize);
             this.simulation.width = tableWidth;
             this.simulation.height = tableHeight;
-            this.simulation.board = new Cell[tableHeight][tableWidth];
+            this.simulation.board = new Cell[tableWidth][tableHeight];
             for(int i = 0; i < tableHeight; i++)
                     {
                         for(int j = 0; j < tableWidth; j++)
-                        this.simulation.board[i][j] = new Cell(0,204,204,204);
+                        this.simulation.board[j][i] = new Cell(0,204,204,204);
                     }
             draw(tableWidth, tableHeight);
         });
@@ -337,8 +337,8 @@ public class MainView extends Pane {
 
 
         Color  c;  
-        for (int x = 0; x < this.simulation.height; x++) {
-            for (int y = 0; y < this.simulation.width; y++) {
+        for (int x = 0; x < this.simulation.width; x++) {
+            for (int y = 0; y < this.simulation.height; y++) {
                 c = Color.rgb(this.simulation.board[x][y].r, this.simulation.board[x][y].g, this.simulation.board[x][y].b);
                 g.setFill(c);
                 g.fillRect(x,y,1,1);
